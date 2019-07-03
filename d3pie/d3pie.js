@@ -2,8 +2,8 @@
  * d3pie
  * @author Alex Hepp
  * @author Ben Keen
- * @version 0.2.2
- * @date March 05th, 2019
+ * @version 0.2.3
+ * @date July 03rd, 2019
  * @repo http://github.com/heppa/d3pie
  */
 
@@ -1446,7 +1446,6 @@ var segments = {
 			}
 
 			index = segment.attr("data-index");
-			console.log(index);
 			tt.moveTooltip(pie, index);
 		});
 
