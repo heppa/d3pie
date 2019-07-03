@@ -1,9 +1,10 @@
 /*!
  * d3pie
+ * @author Alex Hepp
  * @author Ben Keen
- * @version 0.1.9
- * @date June 17th, 2015
- * @repo http://github.com/benkeen/d3pie
+ * @version 0.2.3
+ * @date July 03rd, 2019
+ * @repo http://github.com/heppa/d3pie
  */
 
 // UMD pattern from https://github.com/umdjs/umd/blob/master/returnExports.js
@@ -22,7 +23,7 @@
 }(this, function() {
 
 	var _scriptName = "d3pie";
-	var _version = "0.2.1";
+	var _version = "0.2.3";
 
 	// used to uniquely generate IDs and classes, ensuring no conflict between multiple pies on the same page
 	var _uniqueIDCounter = 0;

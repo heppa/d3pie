@@ -1,9 +1,10 @@
 /*!
  * d3pie
+ * @author Alex Hepp
  * @author Ben Keen
- * @version 0.1.9
- * @date June 17th, 2015
- * @repo http://github.com/benkeen/d3pie
+ * @version 0.2.2
+ * @date March 05th, 2019
+ * @repo http://github.com/heppa/d3pie
  */
 
 // UMD pattern from https://github.com/umdjs/umd/blob/master/returnExports.js
@@ -22,7 +23,7 @@
 }(this, function() {
 
 	var _scriptName = "d3pie";
-	var _version = "0.2.1";
+	var _version = "0.2.3";
 
 	// used to uniquely generate IDs and classes, ensuring no conflict between multiple pies on the same page
 	var _uniqueIDCounter = 0;
@@ -438,7 +439,7 @@ var helpers = {
 				var dataPercent = (data[i].value / totalSize) * 100;
 				if (dataPercent <= smallSegmentGrouping.value) {
 					groupedData.push(data[i]);
-					totalGroupedData += data[i].value;
+					totalGroupedData += data[i].value * 100;
 					continue;
 				}
 				data[i].isGrouped = false;
@@ -446,7 +447,7 @@ var helpers = {
 			} else {
 				if (data[i].value <= smallSegmentGrouping.value) {
 					groupedData.push(data[i]);
-					totalGroupedData += data[i].value;
+					totalGroupedData += data[i].value * 100;
 					continue;
 				}
 				data[i].isGrouped = false;
@@ -459,7 +460,7 @@ var helpers = {
 			newData.push({
 				color: smallSegmentGrouping.color,
 				label: smallSegmentGrouping.label,
-				value: totalGroupedData,
+				value: totalGroupedData / 100,
 				isGrouped: true,
 				groupedData: groupedData
 			});
@@ -1156,8 +1157,8 @@ var labels = {
     }
 
 		var size = pie.options.data.content.length;
-		labels.checkConflict(pie, 0, "clockwise", size);
 		labels.checkConflict(pie, size-1, "anticlockwise", size);
+		labels.checkConflict(pie, 0, "clockwise", size);
 	},
 
 	checkConflict: function(pie, currIndex, direction, size) {
@@ -1434,7 +1435,19 @@ var segments = {
 		});
 
 		arc.on("mousemove", function() {
-			tt.moveTooltip(pie);
+			var currentEl = d3.select(this);
+			var index, segment;
+
+			if (currentEl.attr("class") === pie.cssPrefix + "arc") {
+				segment = currentEl.select("path");
+			} else {
+				index = currentEl.attr("data-index");
+				segment = d3.select("#" + pie.cssPrefix + "segment" + index);
+			}
+
+			index = segment.attr("data-index");
+			console.log(index);
+			tt.moveTooltip(pie, index);
 		});
 
 		arc.on("mouseout", function() {
@@ -1487,7 +1500,7 @@ var segments = {
 		}
 		pie.isOpeningSegment = true;
 
-		segments.maybeCloseOpenSegment();
+		segments.maybeCloseOpenSegment(pie);
 
 		d3.select(segment).transition()
 			.ease(segments.effectMap[pie.options.effects.pullOutSegmentOnClick.effect])
@@ -1508,7 +1521,7 @@ var segments = {
 			});
 	},
 
-    maybeCloseOpenSegment: function() {
+    maybeCloseOpenSegment: function(pie) {
         if (d3.selectAll("." + pie.cssPrefix + "expanded").size() > 0) {
             segments.closeSegment(pie, d3.select("." + pie.cssPrefix + "expanded").node());
         }
@@ -1822,11 +1835,12 @@ var tt = {
             .duration(fadeInSpeed)
             .style("opacity", function() { return 1; });
 
-        tt.moveTooltip(pie);
+        tt.moveTooltip(pie, index);
     },
 
-    moveTooltip: function(pie) {
-        d3.selectAll("#" + pie.cssPrefix + "tooltip" + tt.currentTooltip)
+    moveTooltip: function(pie, index) {
+        if(index === undefined) return;
+        d3.selectAll("#" + pie.cssPrefix + "tooltip" + index)
             .attr("transform", function(d) {
                 var mouseCoords = d3.mouse(this.parentNode);
                 var x = mouseCoords[0] + pie.options.tooltips.styles.padding + 2;
@@ -1837,16 +1851,16 @@ var tt = {
 
     hideTooltip: function(pie, index) {
         d3.select("#" + pie.cssPrefix + "tooltip" + index)
-            .style("opacity", function() { return 0; });
+        .style("opacity", function() { return 0; });
 
-        // move the tooltip offscreen. This ensures that when the user next mouseovers the segment the hidden
+        // move the last tooltip offscreen. This ensures that when the user next mouseovers the segment the hidden
         // element won't interfere
         d3.select("#" + pie.cssPrefix + "tooltip" + tt.currentTooltip)
             .attr("transform", function(d, i) {
                 // klutzy, but it accounts for tooltip padding which could push it onscreen
                 var x = pie.options.size.canvasWidth + 1000;
                 var y = pie.options.size.canvasHeight + 1000;
-                return "translate(" + x + "," + y + ")";
+                return "translate(" + x + " " + y + ")";
             });
     },
 

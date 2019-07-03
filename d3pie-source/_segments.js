@@ -151,7 +151,18 @@ var segments = {
 		});
 
 		arc.on("mousemove", function() {
-			tt.moveTooltip(pie);
+			var currentEl = d3.select(this);
+			var index, segment;
+
+			if (currentEl.attr("class") === pie.cssPrefix + "arc") {
+				segment = currentEl.select("path");
+			} else {
+				index = currentEl.attr("data-index");
+				segment = d3.select("#" + pie.cssPrefix + "segment" + index);
+			}
+
+			index = segment.attr("data-index");
+			tt.moveTooltip(pie, index);
 		});
 
 		arc.on("mouseout", function() {

@@ -65,11 +65,12 @@ var tt = {
             .duration(fadeInSpeed)
             .style("opacity", function() { return 1; });
 
-        tt.moveTooltip(pie);
+        tt.moveTooltip(pie, index);
     },
 
-    moveTooltip: function(pie) {
-        d3.selectAll("#" + pie.cssPrefix + "tooltip" + tt.currentTooltip)
+    moveTooltip: function(pie, index) {
+        if(index === undefined) return;
+        d3.selectAll("#" + pie.cssPrefix + "tooltip" + index)
             .attr("transform", function(d) {
                 var mouseCoords = d3.mouse(this.parentNode);
                 var x = mouseCoords[0] + pie.options.tooltips.styles.padding + 2;
@@ -80,16 +81,16 @@ var tt = {
 
     hideTooltip: function(pie, index) {
         d3.select("#" + pie.cssPrefix + "tooltip" + index)
-            .style("opacity", function() { return 0; });
+        .style("opacity", function() { return 0; });
 
-        // move the tooltip offscreen. This ensures that when the user next mouseovers the segment the hidden
+        // move the last tooltip offscreen. This ensures that when the user next mouseovers the segment the hidden
         // element won't interfere
         d3.select("#" + pie.cssPrefix + "tooltip" + tt.currentTooltip)
             .attr("transform", function(d, i) {
                 // klutzy, but it accounts for tooltip padding which could push it onscreen
                 var x = pie.options.size.canvasWidth + 1000;
                 var y = pie.options.size.canvasHeight + 1000;
-                return "translate(" + x + "," + y + ")";
+                return "translate(" + x + " " + y + ")";
             });
     },
 
